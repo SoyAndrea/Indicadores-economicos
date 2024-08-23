@@ -1,0 +1,36 @@
+---
+title: "<H3>Disparidades entre la variación de precios de la canasta básica alimentaria y la variación de precios de la canasta alimentaria relevada por el Índice Barrial de Precios entre 2019 y 2023.</H3>"
+author: "D’Urbano Guim, Juan | Gomez Vargas, Andrea | Iummato, Luciana"
+institute: "<br>Indicadores Económicos<br>Maestría en Generación y Análisis de Información Estadística<br> UNTREF"
+date: "08/28/2024"
+date-format: "DD [de] MMMM [de] YYYY"
+lang: es
+format: 
+  revealjs: 
+    #theme: custom.scss
+    theme: solarized
+    self-contained: true
+    slide-number: c/t
+    smaller: true
+    logo: untref.png
+    # css: logo.css
+    footer: "[https://github.com/SoyAndrea/Indicadores-economicos](https://github.com/SoyAndrea/Indicadores-economicos)"
+---
+
+## Planteamiento del problema y Objetivo
+
+![](https://isepci.org.ar/wp-content/uploads/2020/04/ibp-footer.png){width="20%" fig-align="left" style="border-radius: 80%;"}
+
+
+## Estado actual del conocimiento sobre el tema
+
+
+
+## Metodología 
+
+
+## Primeros resultados
+
+
+## Fuentes de información
+
