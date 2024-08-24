@@ -7,24 +7,99 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+
+library(tidyverse)
+library(gt)
+options(scipen = 999)
 ```
 
-## R Markdown
+```{r}
+canastas_indec <- read_excel("data/BASE_canastas.xlsx", 
+    sheet = "INDEC_19_23")
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+canastas_ibp <- read_excel("data/BASE_canastas.xlsx", 
+    sheet = "IBP_19-23") %>% 
+  select(-4:-5) %>% 
+  mutate(CBT = as.numeric(CBT),
+         CBA = as.numeric(CBA),
+         CBT = round(CBT,2),
+         CBA = round(CBA,2)
+         )
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+canastas <- rbind(canastas_indec,canastas_ibp) %>% 
+  mutate(mes = fct_relevel(mes, c("Enero", "Febrero","Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")))
 
-```{r cars}
-summary(cars)
+class(canastas_indec$CBT)
+
+```
+ 
+ 
+ 
+```{r}
+
+esquisse::esquisser(canastas)
+```
+ 
+```{r}
+
+
+ggplot(canastas) +
+  aes(x = mes, y = CBA, fill = organismo) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = c("#42047e", "#07f49e")) +
+  theme_minimal() +
+  facet_wrap(vars(ano), scales = "free_y", ncol = 1)
+```
+ 
+```{r}
+
+
+ggplot(canastas) +
+  aes(x = mes, y = CBT, fill = organismo) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = c("#42047e", "#07f49e")) +
+  theme_minimal() +
+  facet_wrap(vars(ano), scales = "free_y", ncol = 1)
+```
+ 
+ 
+```{r}
+tabla <- canastas %>% 
+  pivot_wider(names_from = organismo, 
+              values_from = c(CBA,CBT)) %>% 
+  mutate(CBA_dif = CBA_INDEC - CBA_ISEPCI)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+```{r}
+tabla %>% 
+  gt(groupname_col = "ano") %>% 
+    tab_header(
+    title = md("**Publicación de valores de canastas hogar tipo 2 por organismo**"),
+    subtitle = md("enero 2019 a diciembre 2023")) %>% 
+   tab_spanner(
+    label = "CBA",
+    columns = c(CBA_INDEC, CBA_ISEPCI)) %>% 
+  tab_spanner(
+    label = "CBT",
+    columns = c(CBT_INDEC, CBT_ISEPCI)) %>% 
+  cols_label(mes = '', CBA_INDEC = 'INDEC', CBA_ISEPCI = "ISEPCI", CBT_INDEC = 'INDEC', CBT_ISEPCI = "ISEPCI" ) %>% 
+  cols_align(align = c("left"), columns = mes) %>% 
+  tab_options(
+      column_labels.background.color = "#f2eef4",
+      heading.background.color = "#865596",
+      row_group.background.color = "white",
+      row_group.font.size = px(20),
+      row_group.font.weight = "bolder",
+      table.border.top.color = "white")
 
-```{r pressure, echo=FALSE}
-plot(pressure)
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+ 
+ 
+ 
+```{r}
+esquisse::esquisser(canastas)
+```
+ 
+ 
