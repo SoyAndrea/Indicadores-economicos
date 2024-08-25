@@ -11,26 +11,35 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(gt)
+library(openxlsx)
 options(scipen = 999)
 ```
 
 ```{r}
-canastas_indec <- read_excel("data/BASE_canastas.xlsx", 
-    sheet = "INDEC_19_23")
+# canastas_indec <- read.xlsx("data/BASE_canastas.xlsx", 
+#     sheet = "INDEC_17_23") %>% 
+#   mutate(
+#          var_rel_cbt = round(var_rel_cbt,1),
+#          var_rel_cba = round(var_rel_cba,1)
+#   )
+# 
+# canastas_ibp <- read.xlsx("data/BASE_canastas.xlsx", 
+#     sheet = "IBP_17-23") %>% 
+#   select(-4:-5) %>% 
+#   mutate(CBT = round(as.numeric(CBT),2),
+#          CBA = round(as.numeric(CBA),2),
+#          var_rel_cbt = round(var_rel_cbt,1),
+#          var_rel_cba = round(var_rel_cba,1)
+#          )
 
-canastas_ibp <- read_excel("data/BASE_canastas.xlsx", 
-    sheet = "IBP_19-23") %>% 
-  select(-4:-5) %>% 
-  mutate(CBT = as.numeric(CBT),
-         CBA = as.numeric(CBA),
-         CBT = round(CBT,2),
-         CBA = round(CBA,2)
-         )
 
-canastas <- rbind(canastas_indec,canastas_ibp) %>% 
+canastas <- read.xlsx("data/BASE_canastas.xlsx", sheet = "TOTAL CANASTAS") %>% 
   mutate(mes = fct_relevel(mes, c("Enero", "Febrero","Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")))
 
-class(canastas_indec$CBT)
+# canastas <- rbind(canastas_indec,canastas_ibp) %>% 
+#   mutate(mes = fct_relevel(mes, c("Enero", "Febrero","Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")))
+
+class(canastas_ibp$CBT)
 
 ```
  
@@ -41,6 +50,67 @@ class(canastas_indec$CBT)
 esquisse::esquisser(canastas)
 ```
  
+```{r}
+ggplot(canastas) +
+  aes(x = mes, y = var_rel_cba, fill = organismo) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = c("#42047e", "#07f49e")) +
+  #scale_fill_viridis_d(option = "viridis", direction = 1) +
+  ggthemes::theme_economist_white() +
+  facet_wrap(vars(ano), scales = "free_y", ncol = 1)
+
+```
+```{r}
+
+
+gra1 <- canastas %>% 
+  #mutate(fecha = paste0(ano,mes)) %>% 
+  filter(ano == 2023) %>% 
+  ggplot() +
+  aes(x = mes_n, y = var_rel_cba, group = organismo, colour = organismo) +
+  geom_line(linewidth = 1) +
+  geom_point()+
+  scale_x_continuous(limits = c(1, 12), breaks = seq(1, 12, by = 1)) + 
+    scale_color_manual(values = c("#42047e", "#07f49e")) +
+  theme_bw() +
+  labs(
+    x = "mes",
+    y = "porcentaje"
+  ) +
+  theme(legend.position = "bottom")
+
+ggsave("gra1.png", width = 6, height = 4)
+# png("gra1.png")
+# print(gra1)
+# dev.off()
+  #facet_wrap(vars(ano), scales = "free_y", ncol = 2) +
+   #ggthemes::theme_economist_white() #+ theme(axis.text.x = element_text(angle = 30))
+  
+
+```
+ 
+
+```{r}
+gra2 <- canastas %>% 
+  #mutate(fecha = paste0(ano,mes)) %>% 
+  filter(ano == 2023) %>% 
+  ggplot() +
+  aes(x = mes_n, y = var_rel_cbt, group = organismo, colour = organismo) +
+  geom_line(linewidth = 1) +
+  geom_point()+
+  scale_x_continuous(limits = c(1, 12), breaks = seq(1, 12, by = 1)) + 
+    scale_color_manual(values = c("#ff0f7b", "#f89b29")) +
+  theme_bw() +
+  labs(
+    x = "mes",
+    y = "porcentaje"
+  ) +
+  theme(legend.position = "bottom")
+
+ggsave("gra2.png", width = 6, height = 4)
+```
+
+
 ```{r}
 
 
@@ -68,7 +138,7 @@ ggplot(canastas) +
 tabla <- canastas %>% 
   pivot_wider(names_from = organismo, 
               values_from = c(CBA,CBT)) %>% 
-  mutate(CBA_dif = CBA_INDEC - CBA_ISEPCI)
+  mutate(dif = CBA_INDEC - CBA_ISEPCI)
 ```
 
 
