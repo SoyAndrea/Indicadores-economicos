@@ -1,5 +1,5 @@
 ---
-title: "<H3>Disparidades entre la variación de precios de la canasta básica alimentaria y la variación de precios de la canasta alimentaria relevada por el Índice Barrial de Precios entre 2019 y 2023.</H3>"
+title: "<H2>Disparidades en la valorización de la Canasta Básica Alimentaria relevada por el INDEC y el Índice Barrial de Precios en el Gran Buenos Aires entre 2017 y 2023.</H2>"
 author: "D’Urbano Guim, Juan | Gomez Vargas, Andrea | Iummato, Luciana"
 institute: "<br>Indicadores Económicos<br>Maestría en Generación y Análisis de Información Estadística<br> UNTREF"
 date: "08/28/2024"
@@ -7,30 +7,101 @@ date-format: "DD [de] MMMM [de] YYYY"
 lang: es
 format: 
   revealjs: 
-    #theme: custom.scss
-    theme: solarized
+    theme: custom.scss
     self-contained: true
     slide-number: c/t
     smaller: true
     logo: untref.png
     # css: logo.css
-    footer: "[https://github.com/SoyAndrea/Indicadores-economicos](https://github.com/SoyAndrea/Indicadores-economicos)"
+    #footer: "[https://github.com/SoyAndrea/Indicadores-economicos](https://github.com/SoyAndrea/Indicadores-economicos)"
 ---
 
 ## Planteamiento del problema y Objetivo
 
-![](https://isepci.org.ar/wp-content/uploads/2020/04/ibp-footer.png){width="20%" fig-align="left" style="border-radius: 80%;"}
+### Objetivo general:
+Analizar las diferencias en el comportamiento de los precios de la Canasta Básica Alimentaria (CBA) relevado por INDEC y el Índice Barrial de Precios (IBP) entre 2017 y 2023, en la zona del Gran Buenos Aires.
+<br>
+
+### Objetivos específicos:
+- Comparar las tendencias de la variación de precios de la Canasta Alimentaria relevada por el INDEC y el IBP entre 2017 y 2023.
+- Comparar las tendencias de variación de precios en productos alimenticios seleccionados de la Canasta Alimentaria  entre 2017 y 2023.
+
+
+
+![](https://isepci.org.ar/wp-content/uploads/2020/04/ibp-footer.png){width="10%" fig-align="center"} 
+
+![](https://upload.wikimedia.org/wikipedia/commons/6/64/Logo_Indec.png){width="10%" fig-align="center"}
+
+
+
 
 
 ## Estado actual del conocimiento sobre el tema
+<br>
 
+- Procesos inflacionarios incrementan sustancialmente los índices de pobreza. Vínculo entre la variación de precios, la proporción del gasto en alimentos y la pobreza. Impacto diferencial en familias con diversos ingresos.
+
+
+- Definiciones de la pobreza, método de medición indirecta a través de canastas (INDEC).
+
+
+- Relevamiento de canastas alimentarias en zonas vulnerables o barrios populares (ISEPCI).
 
 
 ## Metodología 
 
+- *Período de análisis:* enero 2017 a diciembre 2023.
+- *Cobertura geográfica:* 
+
+    - INDEC: Ciudad Autónoma de Buenos Aires y 24 partidos del Gran Buenos            Aires 
+    - ISEPCI: 24 partidos del Gran Buenos Aires
+
+###  Indicadores/variables:
+- Valorización Mensual de la Canasta Básica Alimentaria (CBA) y de la Canasta Básica Total (CBT) para hogar tipo 2 en el Gran Buenos Aires. 
+
+- Variación relativa porcentual respecto al mes anterior de la Canasta Básica Alimentaria (CBA) y de la Canasta Básica Total (CBT) para hogar tipo 2 en el Gran Buenos Aires. 
+
+- Precios al consumidor de una selección de alimentos, bebidas y otros artículos para el GBA. 
+
+- Variación de precios de los productos que integran la Canasta Básica en el GBA.
+
 
 ## Primeros resultados
 
+```{r}
+library(tidyverse)
+library(plotly)
+library(openxlsx)
+
+canastas <- read.xlsx("data/BASE_canastas.xlsx", sheet = "TOTAL CANASTAS") %>% 
+  mutate(mes = fct_relevel(mes, c("Enero", "Febrero","Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")))
+
+canastas %>% 
+  #mutate(fecha = paste0(ano,mes)) %>% 
+  filter(ano == 2023) %>% 
+  ggplot() +
+  aes(x = mes_n, y = var_rel_cba, group = organismo, colour = organismo) +
+  geom_line(linewidth = 1) +
+  geom_point()+
+  scale_x_continuous(limits = c(1, 12), breaks = seq(1, 12, by = 1)) + 
+    scale_color_manual(values = c("#42047e", "#07f49e")) +
+  theme_bw() +
+  labs(
+    x = "mes",
+    y = "porcentaje"
+  ) +
+  theme(legend.position = "bottom")
+```
+
 
 ## Fuentes de información
+<br>
+
+| Organismo            | Fuente de Información   | Período | 
+|------- |----------------------|---------|
+| INDEC  | Informes técnicos: Valorización mensual de la canasta básica alimentaria y de la canasta básica total.    | Enero 2017 a diciembre 2023 | 
+| INDEC         | Canasta básica alimentaria y canasta básica total. Resultados mensuales expresados en pesos por adulto equivalente y variaciones porcentuales. Abril de 2016 a julio de 2024       | Enero 2017 a diciembre 2023 | 
+| INDEC | Informes técnicos: Índice de precios al consumidor (IPC) | Enero 2017 a diciembre 2023 | 
+| ISEPCI    | IBP CONURBANO BONAERENSE. Canasta Básica Alimentaria (CBA) y Canasta Básica Total (CBT). valores históricos  | Enero 2017 a diciembre 2023 | 
+
 
