@@ -12,7 +12,7 @@ format:
     slide-number: c/t
     smaller: true
     logo: untref.png
-    # css: logo.css
+    css: logo.css
     #footer: "[https://github.com/SoyAndrea/Indicadores-economicos](https://github.com/SoyAndrea/Indicadores-economicos)"
 ---
 
@@ -27,10 +27,6 @@ Analizar las diferencias en el comportamiento de los precios de la Canasta Bási
 - Comparar las tendencias de variación de precios en productos alimenticios seleccionados de la Canasta Alimentaria  entre 2017 y 2023.
 
 
-
-![](https://isepci.org.ar/wp-content/uploads/2020/04/ibp-footer.png){width="10%" fig-align="center"} 
-
-![](https://upload.wikimedia.org/wikipedia/commons/6/64/Logo_Indec.png){width="10%" fig-align="center"}
 
 
 
@@ -68,40 +64,154 @@ Analizar las diferencias en el comportamiento de los precios de la Canasta Bási
 
 ## Primeros resultados
 
+::: {.panel-tabset}
+
+### Comparativo 2023
+
+
+```{r}
+library(gt)
+library(tidyverse)
+library(openxlsx)
+
+canastas <- read.xlsx("data/BASE_canastas.xlsx", sheet = "TOTAL CANASTAS") %>% 
+  mutate(mes = fct_relevel(mes, c("Enero", "Febrero","Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")))
+
+tabla <- canastas %>% 
+  mutate( var_rel_cbt = round(var_rel_cbt,1),
+          var_rel_cba = round(var_rel_cba,1)) %>% 
+  pivot_wider(names_from = organismo, 
+              values_from = c(5:8)) %>%
+  filter(ano == 2023) %>% 
+  select(mes, CBA_INDEC, var_rel_cba_INDEC, CBT_INDEC, var_rel_cbt_INDEC,
+              CBA_ISEPCI, var_rel_cba_ISEPCI, CBT_ISEPCI, var_rel_cbt_ISEPCI) 
+
+
+gt(tabla) %>% 
+  tab_header(
+    title = md("**Cuadro 1:** Valorización mensual y variación relativa porcentual respecto al mes anterior de la Canasta Básica Alimentaria (CBA) y de la Canasta Básica Total (CBT) para hogar tipo 2 en el Gran Buenos Aires. Año 2023.")) %>% 
+  tab_spanner(
+    label = md("**INDEC**"),
+    columns = c(CBA_INDEC, var_rel_cba_INDEC, CBT_INDEC, var_rel_cbt_INDEC)) %>% 
+  tab_spanner(
+    label = md("**ISEPCI**"),
+    columns = c(CBA_ISEPCI, var_rel_cba_ISEPCI, CBT_ISEPCI, var_rel_cbt_ISEPCI)) %>% 
+    cols_label( CBA_INDEC = 'CBA', CBA_ISEPCI = "CBA", 
+                CBT_INDEC = 'CBT', CBT_ISEPCI = "CBT",
+                var_rel_cba_ISEPCI = "variación relativa al mes anterior", 
+                var_rel_cbt_ISEPCI = "variación relativa al mes anterior",
+                var_rel_cba_INDEC = "variación relativa al mes anterior", 
+                var_rel_cbt_INDEC = "variación relativa al mes anterior") %>% 
+  cols_align(align = c("left"), columns = mes) %>% 
+  cols_align(align = c("center"), columns = c(2:8)) %>% 
+  tab_options(
+    table_body.hlines.style = "none",
+    column_labels.border.top.color = "black",
+    column_labels.border.bottom.color = "black",
+    table_body.border.bottom.color = "black",
+    table.font.size = "13px") %>% 
+  fmt_number(
+    columns = c(2,4,6,8),
+    decimals = 2,
+    sep_mark = ".",
+    dec_mark = ","
+  ) %>%
+    fmt_number(
+    columns = c(3,5,7,9),
+    decimals = 1,
+    sep_mark = ".",
+    dec_mark = ","
+  ) %>%
+  data_color(
+    columns = var_rel_cba_ISEPCI,
+    rows = var_rel_cba_ISEPCI > 10,
+    direction = "column",
+    palette ="viridis") %>% 
+   data_color(
+    columns = var_rel_cbt_ISEPCI,
+    rows = var_rel_cbt_ISEPCI > 10,
+    direction = "column",
+    palette ="viridis") %>% 
+  data_color(
+    columns = var_rel_cba_INDEC,
+    rows = var_rel_cba_INDEC > 10,
+    direction = "column",
+    palette ="viridis") %>% 
+  data_color(
+    columns = var_rel_cbt_INDEC,
+    rows = var_rel_cbt_INDEC > 10,
+    direction = "column",
+    palette ="viridis") %>% 
+  tab_footnote(
+    footnote = md("**Fuente:** Elaboración propia con base a los informes publicados por INDEC e ISEPCI")) 
+  
+```
+
+
+### CBA 
+
 ```{r}
 library(tidyverse)
-library(plotly)
 library(openxlsx)
 
 canastas <- read.xlsx("data/BASE_canastas.xlsx", sheet = "TOTAL CANASTAS") %>% 
   mutate(mes = fct_relevel(mes, c("Enero", "Febrero","Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")))
 
 canastas %>% 
-  #mutate(fecha = paste0(ano,mes)) %>% 
   filter(ano == 2023) %>% 
   ggplot() +
-  aes(x = mes_n, y = var_rel_cba, group = organismo, colour = organismo) +
-  geom_line(linewidth = 1) +
-  geom_point()+
-  scale_x_continuous(limits = c(1, 12), breaks = seq(1, 12, by = 1)) + 
-    scale_color_manual(values = c("#42047e", "#07f49e")) +
+  aes(x = mes, y = var_rel_cba, fill = organismo) +
+  geom_col(position = "dodge",width = 0.5 )+
+  scale_fill_manual(values = c("#103783", "#2a9d8f")) +
   theme_bw() +
   labs(
     x = "mes",
-    y = "porcentaje"
-  ) +
+    y = "porcentaje",,
+    title = "Gráfico 1: Variación relativa porcentual respecto al mes anterior de la \nCanasta Básica Alimentaria (CBA) para hogar tipo 2 en el Gran Buenos Aires. Año 2023",
+    caption = "Fuente: Elaboración propia con base a los informes publicados por INDEC e ISEPCI") +
+  geom_text(aes(label = round(var_rel_cba,1), 
+              group = organismo), vjust = -0.5,
+          position = position_dodge(0.5),
+          colour = "black", size = 3) +
   theme(legend.position = "bottom")
+
 ```
 
+### CBT 
+
+```{r}
+canastas %>% 
+  filter(ano == 2023) %>% 
+  ggplot() +
+  aes(x = mes, y = var_rel_cbt, fill = organismo) +
+  geom_col(position = "dodge",width = 0.5 )+
+  scale_fill_manual(values = c("#103783", "#2a9d8f")) +
+  theme_bw() +
+  labs(
+    x = "mes",
+    y = "porcentaje", 
+    title = "Gráfico 2: Variación relativa porcentual respecto al mes anterior de la \nCanasta Básica Total (CBT) para hogar tipo 2 en el Gran Buenos Aires. Año 2023",
+    caption = "Fuente: Elaboración propia con base a los informes publicados por INDEC e ISEPCI") +
+geom_text(aes(label = round(var_rel_cbt,1), 
+              group = organismo), vjust = -0.5,
+          position = position_dodge(0.5),
+          colour = "black", size = 3) +
+theme(legend.position = "bottom")
+
+
+```
+
+
+
+:::
 
 ## Fuentes de información
 <br>
 
 | Organismo            | Fuente de Información   | Período | 
 |------- |----------------------|---------|
-| INDEC  | Informes técnicos: Valorización mensual de la canasta básica alimentaria y de la canasta básica total.    | Enero 2017 a diciembre 2023 | 
-| INDEC         | Canasta básica alimentaria y canasta básica total. Resultados mensuales expresados en pesos por adulto equivalente y variaciones porcentuales. Abril de 2016 a julio de 2024       | Enero 2017 a diciembre 2023 | 
+| INDEC | Informes técnicos: Valorización mensual de la canasta básica alimentaria y de la canasta básica total.    | Enero 2017 a diciembre 2023 | 
+| INDEC | Canasta básica alimentaria y canasta básica total. Resultados mensuales expresados en pesos por adulto equivalente y variaciones porcentuales. Abril de 2016 a julio de 2024       | Enero 2017 a diciembre 2023 | 
 | INDEC | Informes técnicos: Índice de precios al consumidor (IPC) | Enero 2017 a diciembre 2023 | 
 | ISEPCI    | IBP CONURBANO BONAERENSE. Canasta Básica Alimentaria (CBA) y Canasta Básica Total (CBT). valores históricos  | Enero 2017 a diciembre 2023 | 
-
 

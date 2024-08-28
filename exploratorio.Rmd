@@ -110,6 +110,16 @@ gra2 <- canastas %>%
 ggsave("gra2.png", width = 6, height = 4)
 ```
 
+```{r}
+ggplot(canastas) +
+  aes(x = mes, y = var_rel_cba, fill = organismo) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = c("#42047e", "#07f49e")) +
+  theme_minimal() +
+  facet_wrap(vars(ano), scales = "free_y", ncol = 1)
+```
+
+
 
 ```{r}
 
@@ -136,9 +146,13 @@ ggplot(canastas) +
  
 ```{r}
 tabla <- canastas %>% 
+  mutate( var_rel_cbt = round(var_rel_cbt,1),
+          var_rel_cba = round(var_rel_cba,1)) %>% 
   pivot_wider(names_from = organismo, 
-              values_from = c(CBA,CBT)) %>% 
-  mutate(dif = CBA_INDEC - CBA_ISEPCI)
+              values_from = c(5:8)) %>% 
+  select(ano,mes, CBA_INDEC, var_rel_cba_INDEC, CBT_INDEC, var_rel_cbt_INDEC,
+              CBA_ISEPCI, var_rel_cba_ISEPCI, CBT_ISEPCI, var_rel_cbt_ISEPCI)
+
 ```
 
 
