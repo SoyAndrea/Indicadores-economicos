@@ -1,5 +1,5 @@
 ---
-title: "<H2>Disparidades en la valorización de la Canasta Básica Alimentaria relevada por el INDEC y el Índice Barrial de Precios en el Gran Buenos Aires entre entre enero de 2017 a diciembre 2023.</H2>"
+title: "<H2>Disparidades en la valorización de la Canasta Básica Alimentaria relevada por el INDEC y el Índice Barrial de Precios en el Gran Buenos Aires entre enero de 2017 a diciembre 2023.</H2>"
 author: "D’Urbano Guim, Juan | Gomez Vargas, Andrea | Iummato, Luciana"
 institute: "<br>Indicadores Económicos<br>Maestría en Generación y Análisis de Información Estadística<br> UNTREF"
 date: "08/28/2024"
