@@ -1,5 +1,5 @@
 ---
-title: "<H2>Disparidades en la valorización de la Canasta Básica Alimentaria relevada por el INDEC y el Índice Barrial de Precios en el Gran Buenos Aires entre 2017 y 2023.</H2>"
+title: "<H2>Disparidades en la valorización de la Canasta Básica Alimentaria relevada por el INDEC y el Índice Barrial de Precios en el Gran Buenos Aires entre entre enero de 2017 a diciembre 2023.</H2>"
 author: "D’Urbano Guim, Juan | Gomez Vargas, Andrea | Iummato, Luciana"
 institute: "<br>Indicadores Económicos<br>Maestría en Generación y Análisis de Información Estadística<br> UNTREF"
 date: "08/28/2024"
@@ -19,12 +19,12 @@ format:
 ## Planteamiento del problema y Objetivo
 
 ### Objetivo general:
-Analizar las diferencias en el comportamiento de los precios de la Canasta Básica Alimentaria (CBA) relevado por INDEC y el Índice Barrial de Precios (IBP) entre 2017 y 2023, en la zona del Gran Buenos Aires.
+Analizar las diferencias en el comportamiento de los precios de la Canasta Básica Alimentaria (CBA) relevado por INDEC y el Índice Barrial de Precios (IBP) entre enero de 2017 a diciembre 2023, en la zona del Gran Buenos Aires.
 <br>
 
 ### Objetivos específicos:
-- Comparar las tendencias de la variación de precios de la Canasta Alimentaria relevada por el INDEC y el IBP entre 2017 y 2023.
-- Comparar las tendencias de variación de precios en productos alimenticios seleccionados de la Canasta Alimentaria  entre 2017 y 2023.
+- Comparar las tendencias de la variación de precios de la Canasta Alimentaria relevada por el INDEC y el IBP entre 2017 a 2023.
+- Comparar las tendencias de variación de precios en productos alimenticios seleccionados de la Canasta Alimentaria  entre 2017 a 2023.
 
 
 
