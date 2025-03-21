@@ -1,0 +1,91 @@
+---
+title: "graficos finales"
+author: "agomezvargas"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(openxlsx)
+library(gt)
+```
+
+```{r}
+canastas <- read.xlsx("data/BASE_canastas.xlsx", sheet = "TOTAL CANASTAS") %>% 
+  mutate(mes = fct_relevel(mes, c("Enero", "Febrero","Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")))
+```
+
+## CBA
+
+
+```{r}
+canastas %>% 
+  #mutate(fecha = paste0(ano,mes)) %>% 
+  filter(ano == 2023) %>% 
+  ggplot() +
+  aes(x = mes_n, y = var_rel_cba, group = organismo, colour = organismo) +
+  geom_line(linewidth = 1) +
+  geom_point()+
+  scale_x_continuous(limits = c(1, 12), breaks = seq(1, 12, by = 1)) + 
+    scale_color_manual(values = c("#42047e", "#07f49e")) +
+  theme_bw() +
+  labs(
+    x = "mes",
+    y = "porcentaje"
+  ) +
+  theme(legend.position = "bottom")
+```
+
+
+## CBT
+
+```{r}
+canastas %>% 
+  filter(ano == 2023) %>% 
+  ggplot() +
+  aes(x = mes_n, y = var_rel_cbt, group = organismo, colour = organismo) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2)+
+  scale_x_continuous(limits = c(1, 12), breaks = seq(1, 12, by = 1)) + 
+    scale_color_manual(values = c("#ff0f7b", "#f89b29")) +
+  theme_bw() +
+  labs(
+    x = "mes",
+    y = "porcentaje",
+    color = NULL) +
+  theme(legend.position = "bottom")
+```
+
+
+```{r}
+output_folder <- "graficos"
+
+# Loop para generar y guardar los gráficos por año
+for (yr in unique(canastas$ano)) {
+  plot <- canastas %>% 
+    filter(ano == yr) %>% 
+    ggplot() +
+    aes(x = mes_n, y = var_rel_cbt, group = organismo, colour = organismo) +
+    geom_line(linewidth = 1) +
+    geom_point(size = 2) +
+    scale_x_continuous(limits = c(1, 12), breaks = seq(1, 12, by = 1)) + 
+    scale_color_manual(values = c("#ff0f7b", "#f89b29")) +
+    theme_bw() +
+    labs(
+      x = "mes",
+      y = "porcentaje",
+      color = NULL) +
+    theme(legend.position = "bottom")
+  
+  # Guardar el gráfico
+  ggsave(filename = paste0(output_folder, "/rel_cbt_", yr, ".png"),
+         plot = plot, width = 20, height = 10, units = "cm")
+}
+
+cat("Gráficos guardados en:", output_folder)
+
+```
+

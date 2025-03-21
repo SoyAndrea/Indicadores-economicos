@@ -40,6 +40,9 @@ canastas <- read.xlsx("data/BASE_canastas.xlsx", sheet = "TOTAL CANASTAS") %>%
 #   mutate(mes = fct_relevel(mes, c("Enero", "Febrero","Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")))
 
 class(canastas_ibp$CBT)
+colnames(canastas)
+
+unique(canastas$)
 
 ```
  
@@ -79,7 +82,7 @@ gra1 <- canastas %>%
   ) +
   theme(legend.position = "bottom")
 
-ggsave("gra1.png", width = 6, height = 4)
+#ggsave("gra1.png", width = 6, height = 4)
 # png("gra1.png")
 # print(gra1)
 # dev.off()
@@ -91,7 +94,7 @@ ggsave("gra1.png", width = 6, height = 4)
  
 
 ```{r}
-gra2 <- canastas %>% 
+canastas %>% 
   #mutate(fecha = paste0(ano,mes)) %>% 
   filter(ano == 2023) %>% 
   ggplot() +
@@ -107,7 +110,7 @@ gra2 <- canastas %>%
   ) +
   theme(legend.position = "bottom")
 
-ggsave("gra2.png", width = 6, height = 4)
+#ggsave("gra2.png", width = 6, height = 4)
 ```
 
 ```{r}
