@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(openxlsx)
 library(gt)
+library(scales)
 ```
 
 ```{r}
@@ -18,47 +19,7 @@ canastas <- read.xlsx("data/BASE_canastas_final.xlsx", sheet = "TOTAL CANASTAS")
   mutate(mes = fct_relevel(mes, c("Enero", "Febrero","Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")))
 ```
 
-## CBA
-
-
-```{r}
-canastas %>% 
-  #mutate(fecha = paste0(ano,mes)) %>% 
-  filter(ano == 2023) %>% 
-  ggplot() +
-  aes(x = mes_n, y = var_rel_cba, group = organismo, colour = organismo) +
-  geom_line(linewidth = 1) +
-  geom_point()+
-  scale_x_continuous(limits = c(1, 12), breaks = seq(1, 12, by = 1)) + 
-    scale_color_manual(values = c("#42047e", "#07f49e")) +
-  theme_bw() +
-  labs(
-    x = "mes",
-    y = "porcentaje"
-  ) +
-  theme(legend.position = "bottom")
-```
-
-
-## CBT
-
-```{r}
-canastas %>% 
-  filter(ano == 2023) %>% 
-  ggplot() +
-  aes(x = mes_n, y = var_rel_cbt, group = organismo, colour = organismo) +
-  geom_line(linewidth = 1) +
-  geom_point(size = 2)+
-  scale_x_continuous(limits = c(1, 12), breaks = seq(1, 12, by = 1)) + 
-    scale_color_manual(values = c("#ff0f7b", "#f89b29")) +
-  theme_bw() +
-  labs(
-    x = "mes",
-    y = "porcentaje",
-    color = NULL) +
-  theme(legend.position = "bottom")
-```
-
+## Graficos lineas y puntos 
 
 ```{r}
 output_folder <- "graficos"
@@ -116,5 +77,95 @@ for (yr in unique(canastas$ano)) {
 }
 
 cat("Gráficos guardados en:", output_folder)
+```
+
+
+## grafico de barras
+
+```{r}
+
+
+output_folder <- "graficos"
+
+# Loop para generar y guardar los gráficos por año
+for (i in seq_along(unique(canastas$ano))) {
+  yr <- unique(canastas$ano)[i]
+  
+  # Calcular los límites del eje Y
+  min_y <- min(canastas %>% filter(ano == yr) %>% pull(var_rel_cbt), na.rm = TRUE)
+  max_y <- max(canastas %>% filter(ano == yr) %>% pull(var_rel_cbt), na.rm = TRUE) + 3
+  
+  # Si el mínimo es mayor a 0, forzar a empezar desde 0
+  min_y <- ifelse(min_y > 0, 0, floor(min_y) - 2)  # Redondeamos hacia abajo
+
+  plot <- canastas %>% 
+    filter(ano == yr) %>% 
+    ggplot() +
+    aes(x = mes, y = var_rel_cbt, fill = organismo) +
+    geom_col(position = "dodge", width = 0.5) +
+    scale_fill_manual(values = c("#ff0f7b", "#f89b29")) +
+    theme_bw() +
+    labs(
+      x = "Mes",
+      y = "Porcentaje", 
+      fill =  " ",
+      title = paste0("Gráfico ", i + 0, ": Variación relativa porcentual respecto al mes anterior de la \nCanasta Básica Total (CBT) para hogar tipo 2 en el Gran Buenos Aires. Año ", yr),
+      caption = "Fuente: Elaboración propia con base a los informes publicados por INDEC e ISEPCI"
+    ) +
+    geom_text(aes(label = round(var_rel_cbt, 1), 
+                  group = organismo), vjust = -0.5,
+              position = position_dodge(0.5),
+              colour = "black", size = 2.5) +
+    theme(legend.position = "bottom") +
+    scale_y_continuous(limits = c(min_y, max_y), breaks = scales::breaks_extended(n = 10))  # SOLO números enteros
+  
+  # Guardar el gráfico
+  ggsave(filename = paste0(output_folder, "/rel_cbt_", yr, ".png"),
+         plot = plot, width = 20, height = 10, units = "cm")
+}
+
+```
+
+
+```{r}
+output_folder <- "graficos"
+
+# Loop para generar y guardar los gráficos por año
+for (i in seq_along(unique(canastas$ano))) {
+  yr <- unique(canastas$ano)[i]
+  
+  # Calcular los límites del eje Y
+  min_y <- min(canastas %>% filter(ano == yr) %>% pull(var_rel_cba), na.rm = TRUE)
+  max_y <- max(canastas %>% filter(ano == yr) %>% pull(var_rel_cba), na.rm = TRUE) + 3
+  
+  # Si el mínimo es mayor a 0, forzar a empezar desde 0
+  min_y <- ifelse(min_y > 0, 0, floor(min_y) - 2)  # Redondeamos hacia abajo
+
+  plot <- canastas %>% 
+    filter(ano == yr) %>% 
+    ggplot() +
+    aes(x = mes, y = var_rel_cba, fill = organismo) +
+    geom_col(position = "dodge", width = 0.5) +
+    scale_fill_manual(values = c("#42047e", "#07f49e")) +
+    theme_bw() +
+    labs(
+      x = "Mes",
+      y = "Porcentaje", 
+      fill =  " ",
+      title = paste0("Gráfico ", i + 8, ": Variación relativa porcentual respecto al mes anterior de la \nCanasta Básica Alimentaria (CBA) para hogar tipo 2 en el Gran Buenos Aires. Año ", yr),
+      caption = "Fuente: Elaboración propia con base a los informes publicados por INDEC e ISEPCI"
+    ) +
+    geom_text(aes(label = round(var_rel_cba, 1), 
+                  group = organismo), vjust = -0.5,
+              position = position_dodge(0.5),
+              colour = "black", size = 2.5) +
+    theme(legend.position = "bottom") +
+    scale_y_continuous(limits = c(min_y, max_y), breaks = scales::breaks_extended(n = 10))  # SOLO números enteros
+  
+  # Guardar el gráfico
+  ggsave(filename = paste0(output_folder, "/rel_cba_", yr, ".png"),
+         plot = plot, width = 20, height = 10, units = "cm")
+}
+
 ```
 
