@@ -14,7 +14,7 @@ library(gt)
 ```
 
 ```{r}
-canastas <- read.xlsx("data/BASE_canastas.xlsx", sheet = "TOTAL CANASTAS") %>% 
+canastas <- read.xlsx("data/BASE_canastas_final.xlsx", sheet = "TOTAL CANASTAS") %>% 
   mutate(mes = fct_relevel(mes, c("Enero", "Febrero","Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")))
 ```
 
@@ -87,5 +87,34 @@ for (yr in unique(canastas$ano)) {
 
 cat("Gráficos guardados en:", output_folder)
 
+```
+
+
+
+
+```{r}
+# Loop para generar y guardar los gráficos por año
+for (yr in unique(canastas$ano)) {
+  plot <- canastas %>% 
+    filter(ano == yr) %>% 
+    ggplot() +
+    aes(x = mes_n, y = var_rel_cba, group = organismo, colour = organismo) +
+    geom_line(linewidth = 1) +
+    geom_point()+
+    scale_x_continuous(limits = c(1, 12), breaks = seq(1, 12, by = 1)) + 
+      scale_color_manual(values = c("#42047e", "#07f49e")) +
+    theme_bw() +
+    labs(
+      x = "mes",
+      y = "porcentaje"
+    ) +
+    theme(legend.position = "bottom")
+  
+  # Guardar el gráfico
+  ggsave(filename = paste0(output_folder, "/rel_cba_", yr, ".png"),
+         plot = plot, width = 20, height = 10, units = "cm")
+}
+
+cat("Gráficos guardados en:", output_folder)
 ```
 
