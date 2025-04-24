@@ -1,0 +1,113 @@
+---
+title: "gráficos alimentos"
+author: "Andrea Gomez Vargas"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(openxlsx)
+library(gt)
+library(scales)
+
+
+```
+
+
+```{r}
+alimentos <- read.xlsx("data/base_alimentos.xlsx", sheet = "base") %>% 
+  mutate( #fecha = format(as.Date(fecha, origin = "1899-12-30"), "%Y-%m"),
+          fecha_date = as.Date(fecha, origin = "1899-12-30"),  # esta es la fecha real
+         anio = format(fecha_date, "%Y"),
+        fecha = format(fecha_date, "%Y-%m"),  # esto es texto, por si lo querés en ese formato
+        mes = format(fecha_date, "%m"), 
+        pan = round(pan, 1),
+         lacteos = round(lacteos, 1),
+         carnes = round(carnes, 1)
+         
+         )
+```
+
+
+
+```{r}
+
+op1 <- ggplot(alimentos, aes(x = fecha, y = lacteos, color = fuente, group = fuente)) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values = c("INDEC" = "#233d4d", "ISEPCI" = "#fe7f2d")) +
+  theme_bw() +
+  labs(
+    y = "porcentaje",
+    x = "periodo",
+    title = "Gráfico Variación relativa porcentual respecto al mes anterior del subproducto lacteos \n para hogar tipo 2 en el Gran Buenos Aires. Años 2017 - 2024",
+    caption = "Fuente: Elaboración propia con base a los informes publicados por INDEC e ISEPCI",
+    fill = " "
+    ) +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 4))
+
+op1
+
+# # Guardar el gráfico
+#   ggsave(filename = "op1.png",
+#          plot = op1, width = 20, height = 10, units = "cm")
+```
+
+
+```{r}
+
+anios_fondo <- alimentos %>%
+  mutate(anio = year(fecha)) %>%
+  distinct(anio) %>%
+  arrange(anio) %>%
+  mutate(
+    xmin = as.Date(paste0(anio, "-01-01")),
+    xmax = as.Date(paste0(anio + 1, "-01-01")),
+    fill = rep(c("#f0f0f0", "#d9d9d9"), length.out = n())  # alternar colores suaves
+  )
+ggplot(alimentos, aes(x = fecha, y = lacteos, color = fuente, group = fuente)) +
+  # fondo por año
+  geom_rect(data = anios_fondo,
+            aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = fill),
+            inherit.aes = FALSE,
+            alpha = 0.4) +
+  # líneas y puntos
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values = c("INDEC" = "#233d4d", "ISEPCI" = "#fe7f2d")) +
+  scale_fill_identity() +  # necesario para que use los colores como están
+  theme_bw() +
+  labs(
+    y = "porcentaje",
+    x = "periodo",
+    title = "Gráfico Variación relativa porcentual respecto al mes anterior del subproducto lácteos \npara hogar tipo 2 en el Gran Buenos Aires. Años 2017 - 2024",
+    caption = "Fuente: Elaboración propia con base a los informes publicados por INDEC e ISEPCI",
+    fill = " "
+  ) +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 4)
+  )
+
+```
+
+
+```{r}
+ggplot(alimentos, aes(x = anio, y = lacteos, fill = factor(anio), group = factor(anio))) +
+  geom_bar(stat = "identity", position = "dodge") +  # Barras agrupadas por mes
+  #scale_fill_manual(values = c("2022" = "#233d4d", "2023" = "#fe7f2d")) +  # Ajustar colores por año
+  facet_wrap(~mes, nrow = 1) + 
+  theme_bw() +
+  #ylim(c(0, 130)) +  
+  labs(
+    y = "Porcentaje",
+    title = "blabla", 
+    caption = "Fuente" ) +
+  theme(
+    legend.position = "bottom")
+
+```
+
