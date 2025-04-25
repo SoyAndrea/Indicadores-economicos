@@ -59,6 +59,12 @@ op1
 
 ```{r}
 
+
+# Paso 1: Asegurar que la fecha esté en formato Date
+alimentos <- alimentos %>%
+  mutate(fecha = as.Date(paste0(fecha, "-01")))
+
+# Paso 2: Crear la tabla de fondos por año
 anios_fondo <- alimentos %>%
   mutate(anio = year(fecha)) %>%
   distinct(anio) %>%
@@ -66,8 +72,10 @@ anios_fondo <- alimentos %>%
   mutate(
     xmin = as.Date(paste0(anio, "-01-01")),
     xmax = as.Date(paste0(anio + 1, "-01-01")),
-    fill = rep(c("#f0f0f0", "#d9d9d9"), length.out = n())  # alternar colores suaves
+    fill = rep(c("#f0f0f0", "#d9d9d9"), length.out = n())
   )
+
+# Paso 3: Graficar
 ggplot(alimentos, aes(x = fecha, y = lacteos, color = fuente, group = fuente)) +
   # fondo por año
   geom_rect(data = anios_fondo,
@@ -78,7 +86,7 @@ ggplot(alimentos, aes(x = fecha, y = lacteos, color = fuente, group = fuente)) +
   geom_line() +
   geom_point() +
   scale_color_manual(values = c("INDEC" = "#233d4d", "ISEPCI" = "#fe7f2d")) +
-  scale_fill_identity() +  # necesario para que use los colores como están
+  scale_fill_identity() +
   theme_bw() +
   labs(
     y = "porcentaje",
@@ -91,7 +99,6 @@ ggplot(alimentos, aes(x = fecha, y = lacteos, color = fuente, group = fuente)) +
     legend.position = "bottom",
     axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 4)
   )
-
 ```
 
 
