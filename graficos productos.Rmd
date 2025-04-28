@@ -102,19 +102,48 @@ ggplot(alimentos, aes(x = fecha, y = lacteos, color = fuente, group = fuente)) +
 ```
 
 
+
 ```{r}
-ggplot(alimentos, aes(x = anio, y = lacteos, fill = factor(anio), group = factor(anio))) +
-  geom_bar(stat = "identity", position = "dodge") +  # Barras agrupadas por mes
-  #scale_fill_manual(values = c("2022" = "#233d4d", "2023" = "#fe7f2d")) +  # Ajustar colores por año
-  facet_wrap(~mes, nrow = 1) + 
-  theme_bw() +
-  #ylim(c(0, 130)) +  
-  labs(
-    y = "Porcentaje",
-    title = "blabla", 
-    caption = "Fuente" ) +
-  theme(
-    legend.position = "bottom")
+library(ggplot2)
+
+graficar_y_guardar <- function(var_y, numero) {
+  # Armar el título con el nombre del subproducto
+  titulo <- paste0("Gráfico ", numero, " Variación relativa porcentual respecto al mes anterior de subproductos",
+                   var_y,
+                   " \npara hogar tipo 2 en el Gran Buenos Aires. Años 2017 - 2024")
+  
+  # Crear el gráfico
+  p <- ggplot(alimentos, aes(x = fecha, y = .data[[var_y]], color = fuente, group = fuente)) +
+    geom_line() +
+    geom_point() +
+    scale_color_manual(values = c("INDEC" = "#233d4d", "ISEPCI" = "#fe7f2d")) +
+    theme_bw() +
+    labs(
+      y = "porcentaje",
+      x = "periodo",
+      title = titulo,
+      caption = "Fuente: Elaboración propia con base a los informes publicados por INDEC e ISEPCI",
+      fill = " "
+    ) +
+    theme(legend.position = "bottom",
+          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 4))
+  
+  # Armar el nombre del archivo
+  nombre_archivo <- paste0("graficos/var_", var_y, "_serie.png")
+  
+  # Guardar el gráfico
+  ggsave(filename = nombre_archivo, plot = p, width = 20, height = 10, units = "cm")
+  
+  # Devolver el gráfico para verlo también si querés
+  return(p)
+}
+
+
+```
+
+
+```{r}
+graficar_y_guardar("lacteos",1)
 
 ```
 
