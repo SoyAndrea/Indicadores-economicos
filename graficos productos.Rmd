@@ -11,7 +11,9 @@ library(tidyverse)
 library(openxlsx)
 library(gt)
 library(scales)
-
+library(ggplot2)
+library(dplyr)
+library(lubridate)
 
 ```
 
@@ -30,7 +32,7 @@ alimentos <- read.xlsx("data/base_alimentos.xlsx", sheet = "base") %>%
          )
 ```
 
-
+## Modelo 
 
 ```{r}
 
@@ -57,14 +59,15 @@ op1
 ```
 
 
+## prueba 3
+
+
 ```{r}
-
-
-# Paso 1: Asegurar que la fecha esté en formato Date
+# Aseguramos que la fecha esté en formato Date
 alimentos <- alimentos %>%
   mutate(fecha = as.Date(paste0(fecha, "-01")))
 
-# Paso 2: Crear la tabla de fondos por año
+# Crear la tabla de fondos por año (una vez, afuera de la función)
 anios_fondo <- alimentos %>%
   mutate(anio = year(fecha)) %>%
   distinct(anio) %>%
@@ -72,78 +75,76 @@ anios_fondo <- alimentos %>%
   mutate(
     xmin = as.Date(paste0(anio, "-01-01")),
     xmax = as.Date(paste0(anio + 1, "-01-01")),
-    fill = rep(c("#f0f0f0", "#d9d9d9"), length.out = n())
+    fill = rep(c("#f0f0f0", "#d9d9d9"), length.out = n())  # alternar colores
   )
 
-# Paso 3: Graficar
-ggplot(alimentos, aes(x = fecha, y = lacteos, color = fuente, group = fuente)) +
-  # fondo por año
-  geom_rect(data = anios_fondo,
-            aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = fill),
-            inherit.aes = FALSE,
-            alpha = 0.4) +
-  # líneas y puntos
-  geom_line() +
-  geom_point() +
-  scale_color_manual(values = c("INDEC" = "#233d4d", "ISEPCI" = "#fe7f2d")) +
-  scale_fill_identity() +
-  theme_bw() +
-  labs(
-    y = "porcentaje",
-    x = "periodo",
-    title = "Gráfico Variación relativa porcentual respecto al mes anterior del subproducto lácteos \npara hogar tipo 2 en el Gran Buenos Aires. Años 2017 - 2024",
-    caption = "Fuente: Elaboración propia con base a los informes publicados por INDEC e ISEPCI",
-    fill = " "
-  ) +
-  theme(
-    legend.position = "bottom",
-    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 4)
-  )
-```
-
-
-
-```{r}
-library(ggplot2)
-
+# Función para graficar y guardar
 graficar_y_guardar <- function(var_y, numero) {
-  # Armar el título con el nombre del subproducto
-  titulo <- paste0("Gráfico ", numero, " Variación relativa porcentual respecto al mes anterior de subproductos",
+  
+  # Armar el título
+  titulo <- paste0("Gráfico ", numero, " Variación relativa porcentual respecto al mes anterior de subproductos ",
                    var_y,
                    " \npara hogar tipo 2 en el Gran Buenos Aires. Años 2017 - 2024")
   
   # Crear el gráfico
   p <- ggplot(alimentos, aes(x = fecha, y = .data[[var_y]], color = fuente, group = fuente)) +
+    
+    # Fondo por año
+    geom_rect(data = anios_fondo,
+              aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = fill),
+              inherit.aes = FALSE,
+              alpha = 0.4) +
+    
+    # Líneas y puntos
     geom_line() +
     geom_point() +
+    
+    # Escalas de color
     scale_color_manual(values = c("INDEC" = "#233d4d", "ISEPCI" = "#fe7f2d")) +
+    scale_fill_identity() +  # para que respete los colores del fondo
+    scale_x_date(
+    breaks = as.Date(paste0(2017:2024, "-01-01")),
+    labels = 2017:2024,
+    expand = expansion(mult = c(0.01, 0.01))
+      ) +
+    # Estética
     theme_bw() +
     labs(
       y = "porcentaje",
-      x = "periodo",
+      x = "año",
       title = titulo,
       caption = "Fuente: Elaboración propia con base a los informes publicados por INDEC e ISEPCI",
       fill = " "
     ) +
     theme(legend.position = "bottom",
-          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 4))
+          axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 1, size = 8),
+          legend.title = element_blank())
   
-  # Armar el nombre del archivo
+  # Armar nombre del archivo
   nombre_archivo <- paste0("graficos/var_", var_y, "_serie.png")
   
-  # Guardar el gráfico
+  # Guardar
   ggsave(filename = nombre_archivo, plot = p, width = 20, height = 10, units = "cm")
   
-  # Devolver el gráfico para verlo también si querés
+  # Devolver el gráfico para verlo también
   return(p)
 }
 
+```
 
+### Lácteos 
+
+```{r}
+graficar_y_guardar("lacteos",26)
 ```
 
 
 ```{r}
-graficar_y_guardar("lacteos",1)
-
+graficar_y_guardar("carnes",27)
 ```
 
+
+
+```{r}
+graficar_y_guardar("pan",28)
+```
